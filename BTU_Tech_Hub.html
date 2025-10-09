@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BTU Tech Hub | Launch Plan</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/date-fns"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Serene Dawn (Off-white, Charcoal, Muted Blue accent) -->
+    <!-- Application Structure Plan: A thematic, section-based SPA with top navigation (Mission, Roadmap, Tracks, Team, Join). The core is an interactive Gantt chart roadmap allowing users to visualize the semester's plan and filter by activity type (Projects/Careers). This structure was chosen to move beyond a static document, allowing potential members to quickly grasp the club's value and schedule, and now prominently features Local Collaboration and Entrepreneurship in the Mission section. -->
+    <!-- Visualization & Content Choices: Main visualization is a Gantt-style timeline using Chart.js (horizontal bar chart with a time scale) to represent the club's schedule. Goal: Show change/organization. Interaction: Users can filter the timeline to see specific tracks. This is more intuitive than a long table. Other content like the mission and team roles are presented in styled cards (HTML/Tailwind) for clarity and visual appeal, updated to reflect the new Local Collaboration/Entrepreneurship focus. Goal: Inform. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F8F7F4;
+            color: #333;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 450px;
+            max-height: 70vh;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 550px;
+            }
+        }
+        .nav-link {
+            transition: color 0.3s;
+        }
+        .nav-link.active {
+            color: #3B82F6;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <header class="bg-white/80 backdrop-blur-md sticky top-0 z-50 shadow-sm">
+        <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="text-2xl font-bold text-gray-800">
+                BTU <span class="text-blue-500">Tech Hub</span>
+            </div>
+            <div class="hidden md:flex space-x-8 text-gray-600">
+                <a href="#mission" class="nav-link hover:text-blue-500">Mission</a>
+                <a href="#roadmap" class="nav-link hover:text-blue-500">Roadmap</a>
+                <a href="#tracks" class="nav-link hover:text-blue-500">Core Tracks</a>
+                <a href="#team" class="nav-link hover:text-blue-500">Team</a>
+                <a href="#join" class="nav-link hover:text-blue-500">Join Us</a>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <section id="mission" class="py-20 md:py-28">
+            <div class="container mx-auto px-6 text-center">
+                <h1 class="text-4xl md:text-6xl font-bold text-gray-800 leading-tight">Bridging the Gap Between <br> <span class="text-blue-500">Theory & Real-World Impact</span></h1>
+                <p class="mt-6 text-lg md:text-xl text-gray-600 max-w-3xl mx-auto">We are a student-led collective dedicated to turning academic knowledge into tangible professional assets by **solving local problems digitally** and fostering an entrepreneurial mindset.</p>
+
+                <div class="mt-16 grid grid-cols-1 md:grid-cols-3 gap-8 text-left">
+                    <div class="bg-white p-8 rounded-xl shadow-lg border border-gray-200">
+                        <h3 class="text-2xl font-bold text-gray-800 mb-3">Building & Research</h3>
+                        <p class="text-gray-600">Deliver tangible, portfolio-ready tech projects and engage in meaningful research work to push the boundaries of knowledge.</p>
+                    </div>
+                    <div class="bg-white p-8 rounded-xl shadow-lg border border-gray-200">
+                        <h3 class="text-2xl font-bold text-gray-800 mb-3">Local Collaboration</h3>
+                        <p class="text-gray-600">Connect with local organizations and communities to digitally solve their problems, putting your skills into practical use and generating real impact.</p>
+                    </div>
+                    <div class="bg-white p-8 rounded-xl shadow-lg border border-gray-200">
+                        <h3 class="text-2xl font-bold text-gray-800 mb-3">Entrepreneurial Mindset</h3>
+                        <p class="text-gray-600">Ignite the spirit of innovation and enterprise, encouraging members to develop solutions that can scale into future startups or impactful ventures.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="roadmap" class="py-20 md:py-28 bg-white">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl md:text-4xl font-bold text-gray-800">Our Winter Semester 2025/26 Roadmap</h2>
+                    <p class="mt-4 text-lg text-gray-600 max-w-2xl mx-auto">This interactive timeline outlines our key activities. Click the filters to focus on specific tracks and see how we'll progress from launch to our final project demo.</p>
+                </div>
+                
+                <div class="flex justify-center space-x-2 md:space-x-4 mb-8">
+                    <button id="filter-all" class="bg-blue-500 text-white px-4 py-2 rounded-lg font-semibold shadow">All Events</button>
+                    <button id="filter-projects" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg font-semibold hover:bg-gray-300">Projects Track</button>
+                    <button id="filter-careers" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg font-semibold hover:bg-gray-300">Careers Track</button>
+                </div>
+
+                <div class="chart-container">
+                    <canvas id="roadmapChart"></canvas>
+                </div>
+            </div>
+        </section>
+        
+        <section id="tracks" class="py-20 md:py-28">
+            <div class="container mx-auto px-6">
+                 <div class="text-center mb-16">
+                    <h2 class="text-3xl md:text-4xl font-bold text-gray-800">Our Core Tracks</h2>
+                    <p class="mt-4 text-lg text-gray-600 max-w-2xl mx-auto">Everything we do is focused on two high-impact areas designed to provide maximum value and tangible outcomes for our members.</p>
+                </div>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                    <div>
+                        <h3 class="text-2xl md:text-3xl font-bold text-gray-800 mb-6">Track 1: Projects & Collaboration</h3>
+                        <div class="space-y-6">
+                            <div class="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
+                                <p class="text-blue-500 font-semibold text-sm">Oct 15 - Oct 29</p>
+                                <h4 class="text-xl font-bold mt-1">Phase 1: GenAI Sprint Kick-off</h4>
+                                <p class="mt-2 text-gray-600">We'll launch our 6-week flagship project: building a Multi-Modal BTU Assistant using Gemini/LLaMA. Teams of 4-5 members will be formed to tackle this challenge.</p>
+                            </div>
+                            <div class="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
+                                <p class="text-blue-500 font-semibold text-sm">Oct 30 - Nov 15</p>
+                                <h4 class="text-xl font-bold mt-1">Phase 2: Core Development</h4>
+                                <p class="mt-2 text-gray-600">Weekly check-ins focusing on industry-standard Git workflows and basic MLOps concepts, such as deploying a model via a simple FastAPI endpoint.</p>
+                            </div>
+                             <div class="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
+                                <p class="text-blue-500 font-semibold text-sm">Nov 16 - Dec 5</p>
+                                <h4 class="text-xl font-bold mt-1">Phase 3: Testing & Refinement</h4>
+                                <p class="mt-2 text-gray-600">Engage in peer code review sessions to improve quality. The focus shifts to optimization, documentation, and creating a professional GitHub Readme for the project.</p>
+                            </div>
+                            <div class="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
+                                <p class="text-blue-500 font-semibold text-sm">Dec 13</p>
+                                <h4 class="text-xl font-bold mt-1">Project Demo Day</h4>
+                                <p class="mt-2 text-gray-600">Teams will showcase their functional assistant tool to the group. A friendly panel will provide feedback on technical elegance and utility.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="text-2xl md:text-3xl font-bold text-gray-800 mb-6">Track 2: Career & Skill Cohorts (4 Sessions)</h3>
+                        <div class="space-y-6">
+                            <div class="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
+                                <p class="text-blue-500 font-semibold text-sm">Oct 25</p>
+                                <h4 class="text-xl font-bold mt-1">Session 1: The Impact Resume</h4>
+                                <p class="mt-2 text-gray-600">A hands-on workshop on writing powerful, metrics-based resume bullet points using the "Accomplished [X] as measured by [Y] by doing [Z]" framework.</p>
+                            </div>
+                             <div class="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
+                                <p class="text-blue-500 font-semibold text-sm">Nov 8</p>
+                                <h4 class="text-xl font-bold mt-1">Session 2: Portfolio & Application Strategy</h4>
+                                <p class="mt-2 text-gray-600">Learn to set up a compelling GitHub profile and portfolio, plus practical tips for tailoring applications (cover letters, screening) for German tech companies.</p>
+                            </div>
+                            <div class="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
+                                <p class="text-blue-500 font-semibold text-sm">Nov 22</p>
+                                <h4 class="text-xl font-bold mt-1">Session 3: Technical Interview Prep</h4>
+                                <p class="mt-2 text-gray-600">Participate in mock interview sessions focused on clearly explaining your project experience and foundational concepts like OOPS and Data Structures.</p>
+                            </div>
+                            <div class="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
+                                <p class="text-blue-500 font-semibold text-sm">Dec 6</p>
+                                <h4 class="text-xl font-bold mt-1">Session 4: Networking & Industry Connect</h4>
+                                <p class="mt-2 text-gray-600">A dedicated session on professional networking, connecting with working professionals (including BTU alumni), and structuring mentorship outreach via LinkedIn.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="team" class="py-20 md:py-28 bg-white">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-16">
+                    <h2 class="text-3xl md:text-4xl font-bold text-gray-800">Our Core Team Structure</h2>
+                    <p class="mt-4 text-lg text-gray-600 max-w-2xl mx-auto">We operate with an agile core team to ensure we stay focused on our mission and responsive to our members' needs.</p>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                    <div class="bg-gray-50 p-6 rounded-lg text-center border border-gray-200">
+                        <h4 class="text-xl font-bold text-gray-800">Lead Organizer</h4>
+                        <p class="mt-2 text-gray-600">Sets the overall vision, handles scheduling and external communication, and ensures all activities align with our mission.</p>
+                    </div>
+                    <div class="bg-gray-50 p-6 rounded-lg text-center border border-gray-200">
+                        <h4 class="text-xl font-bold text-gray-800">Projects & Research Lead</h4>
+                        <p class="mt-2 text-gray-600">Scopes and mentors our collaborative tech projects, and facilitates research discussion groups.</p>
+                    </div>
+                    <div class="bg-gray-50 p-6 rounded-lg text-center border border-gray-200">
+                        <h4 class="text-xl font-bold text-gray-800">Career Development Lead</h4>
+                        <p class="mt-2 text-gray-600">Designs and executes all career-focused cohorts, including resume workshops and mock interviews.</p>
+                    </div>
+                    <div class="bg-gray-50 p-6 rounded-lg text-center border border-gray-200">
+                        <h4 class="text-xl font-bold text-gray-800">Outreach & Platform Lead</h4>
+                        <p class="mt-2 text-gray-600">Manages our digital community, creates marketing materials, and handles member onboarding.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="join" class="py-20 md:py-28">
+            <div class="container mx-auto px-6 text-center">
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-800">Ready to Be a Hub Member?</h2>
+                <p class="mt-4 text-lg text-gray-600 max-w-2xl mx-auto">Join our community of builders and innovators. Our inaugural meeting is on **October 15th**. Sign up to get updates and join our Discord server to connect with the team.</p>
+                <div class="mt-8">
+                    <a href="#" class="bg-blue-500 text-white font-bold py-3 px-8 rounded-lg text-lg hover:bg-blue-600 transition duration-300 shadow-lg">Sign Up Now</a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-gray-800 text-white py-8">
+        <div class="container mx-auto px-6 text-center">
+            <p>&copy; 2025 BTU Tech Hub. An informal student collective at BTU Cottbus-Senftenberg.</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const allEvents = [
+                { category: 'setup', label: 'Finalize Core Team', start: '2025-10-01', end: '2025-10-04' },
+                { category: 'setup', label: 'Digital Infrastructure', start: '2025-10-05', end: '2025-10-08' },
+                { category: 'setup', label: 'Event Logistics', start: '2025-10-09', end: '2025-10-10' },
+                { category: 'setup', label: 'Marketing Blitz', start: '2025-10-10', end: '2025-10-13' },
+                { category: 'setup', label: 'Inaugural Meeting', start: '2025-10-15', end: '2025-10-15' },
+                { category: 'projects', label: 'GenAI Sprint: Phase 1', start: '2025-10-15', end: '2025-10-29' },
+                { category: 'projects', label: 'GenAI Sprint: Phase 2', start: '2025-10-30', end: '2025-11-15' },
+                { category: 'projects', label: 'GenAI Sprint: Phase 3', start: '2025-11-16', end: '2025-12-05' },
+                { category: 'projects', label: 'Project Demo Day', start: '2025-12-13', end: '2025-12-13' },
+                { category: 'careers', label: 'Cohort: Impact Resume', start: '2025-10-25', end: '2025-10-25' },
+                { category: 'careers', label: 'Cohort: Portfolio Strategy', start: '2025-11-08', end: '2025-11-08' },
+                { category: 'careers', label: 'Cohort: Interview Prep', start: '2025-11-22', end: '2025-11-22' },
+                { category: 'careers', label: 'Cohort: Networking & Connect', start: '2025-12-06', end: '2025-12-06' },
+                { category: 'social', label: 'End-of-Semester Social', start: '2025-12-19', end: '2025-12-19' }
+            ];
+
+            const categoryColors = {
+                setup: 'rgba(107, 114, 128, 0.7)',
+                projects: 'rgba(59, 130, 246, 0.7)',
+                careers: 'rgba(16, 185, 129, 0.7)',
+                social: 'rgba(239, 68, 68, 0.7)'
+            };
+            
+            const categoryBorders = {
+                setup: 'rgba(107, 114, 128, 1)',
+                projects: 'rgba(59, 130, 246, 1)',
+                careers: 'rgba(16, 185, 129, 1)',
+                social: 'rgba(239, 68, 68, 1)'
+            };
+
+            const ctx = document.getElementById('roadmapChart').getContext('2d');
+            const roadmapChart = new Chart(ctx, {
+                type: 'bar',
+                data: {},
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            type: 'time',
+                            time: {
+                                unit: 'week',
+                                tooltipFormat: 'MMM dd, yyyy'
+                            },
+                            min: '2025-10-01',
+                            max: '2025-12-31',
+                            title: {
+                                display: true,
+                                text: 'Date'
+                            }
+                        },
+                        y: {
+                            ticks: {
+                                autoSkip: false,
+                                callback: function(value, index, values) {
+                                    const label = this.getLabelForValue(value);
+                                    if (label.length > 25) {
+                                        return label.substring(0, 25) + '...';
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const item = context.raw;
+                                    const start = new Date(item.x[0]).toLocaleDateString();
+                                    const end = new Date(item.x[1]).toLocaleDateString();
+                                    return `${context.dataset.label}: ${start} - ${end}`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            
+            function updateChart(filter) {
+                const filteredEvents = filter === 'all' ? allEvents : allEvents.filter(e => e.category === filter || (filter === 'projects' && e.category === 'setup') || (filter === 'projects' && e.category === 'social') );
+
+                roadmapChart.data = {
+                    labels: filteredEvents.map(e => e.label),
+                    datasets: [{
+                        label: 'Event Duration',
+                        data: filteredEvents.map(e => ({
+                            x: [e.start, e.end],
+                            y: e.label
+                        })),
+                        backgroundColor: filteredEvents.map(e => categoryColors[e.category]),
+                        borderColor: filteredEvents.map(e => categoryBorders[e.category]),
+                        borderWidth: 1,
+                        barPercentage: 0.6,
+                        categoryPercentage: 0.8
+                    }]
+                };
+                roadmapChart.update();
+            }
+
+            const filterAll = document.getElementById('filter-all');
+            const filterProjects = document.getElementById('filter-projects');
+            const filterCareers = document.getElementById('filter-careers');
+            const filterButtons = [filterAll, filterProjects, filterCareers];
+
+            function setActiveButton(activeBtn) {
+                filterButtons.forEach(btn => {
+                    btn.classList.remove('bg-blue-500', 'text-white');
+                    btn.classList.add('bg-gray-200', 'text-gray-700', 'hover:bg-gray-300');
+                });
+                activeBtn.classList.add('bg-blue-500', 'text-white');
+                activeBtn.classList.remove('bg-gray-200', 'text-gray-700', 'hover:bg-gray-300');
+            }
+
+            filterAll.addEventListener('click', () => {
+                updateChart('all');
+                setActiveButton(filterAll);
+            });
+            filterProjects.addEventListener('click', () => {
+                const projectRelated = allEvents.filter(e => e.category === 'projects' || e.category === 'setup' || e.category === 'social');
+                roadmapChart.data = {
+                    labels: projectRelated.map(e => e.label),
+                    datasets: [{
+                        label: 'Event Duration',
+                        data: projectRelated.map(e => ({ x: [e.start, e.end], y: e.label })),
+                        backgroundColor: projectRelated.map(e => categoryColors[e.category]),
+                        borderColor: projectRelated.map(e => categoryBorders[e.category]),
+                        borderWidth: 1,
+                        barPercentage: 0.6,
+                        categoryPercentage: 0.8
+                    }]
+                };
+                roadmapChart.update();
+                setActiveButton(filterProjects);
+            });
+            filterCareers.addEventListener('click', () => {
+                const careerRelated = allEvents.filter(e => e.category === 'careers' || e.category === 'setup' || e.category === 'social');
+                roadmapChart.data = {
+                    labels: careerRelated.map(e => e.label),
+                    datasets: [{
+                        label: 'Event Duration',
+                        data: careerRelated.map(e => ({ x: [e.start, e.end], y: e.label })),
+                        backgroundColor: careerRelated.map(e => categoryColors[e.category]),
+                        borderColor: careerRelated.map(e => categoryBorders[e.category]),
+                        borderWidth: 1,
+                        barPercentage: 0.6,
+                        categoryPercentage: 0.8
+                    }]
+                };
+                roadmapChart.update();
+                setActiveButton(filterCareers);
+            });
+
+            updateChart('all');
+            
+            const navLinks = document.querySelectorAll('.nav-link');
+            const sections = document.querySelectorAll('main section');
+
+            window.addEventListener('scroll', () => {
+                let current = '';
+                sections.forEach(section => {
+                    const sectionTop = section.offsetTop;
+                    if (pageYOffset >= sectionTop - 60) {
+                        current = section.getAttribute('id');
+                    }
+                });
+
+                navLinks.forEach(link => {
+                    link.classList.remove('active');
+                    if (link.getAttribute('href').includes(current)) {
+                        link.classList.add('active');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
