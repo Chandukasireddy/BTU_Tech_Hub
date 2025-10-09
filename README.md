@@ -25,7 +25,7 @@ Or open `BTU_Tech_Hub.html` directly in your browser (double-click the file or u
 - Roadmap — an interactive horizontal timeline (Chart.js) showing setup, project sprints, career cohorts, and social events. Filter buttons let you view "All", "Projects", or "Careers".
 - Core Tracks — summary cards describing the two main focus areas (Projects & Careers).
 - Team — core roles and structure in card format.
-- Join — call-to-action and sign-up link.
+- Join — call-to-action and sign-up link. Join our community on Discord at https://discord.gg/2epbq5kt to ask questions and connect with members.
 
 ## Tech notes
 
@@ -67,7 +67,9 @@ If you prefer, open an issue describing what you'd like to change and we'll coor
 
 ## Contact
 
-For questions or coordination, please open an issue in this repository or reach out to the project maintainer listed on the repository profile.
+For questions or coordination, please open an issue in this repository or reach out to the project maintainer listed on the repository profile. You can also join our Discord server to connect directly with the team and other members:
+
+https://discord.gg/2epbq5kt
 
 ## License
 
