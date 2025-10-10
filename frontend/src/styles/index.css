@@ -1,0 +1,30 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* custom styles */
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: #F8F7F4;
+}
+.chart-container {
+  position: relative;
+  width: 100%;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+  height: 450px;
+  max-height: 70vh;
+}
+@media (min-width: 768px) {
+  .chart-container {
+    height: 550px;
+  }
+}
+.nav-link {
+  transition: color 0.3s;
+}
+.nav-link.active {
+  color: #3B82F6;
+  font-weight: 600;
+}
